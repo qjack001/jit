@@ -94,6 +94,21 @@ function toggle_file
 	fi
 }
 
+function discard_selected_files
+{
+	for (( i=0; i<${#fileName[@]}; i++ ));
+	do
+		if [ ${selected[$i]} = true ]; then
+			if [ ${changeType[$i]} = "\033[1;32m+\033[0m" ]; then
+				unlink ${fileName[$i]}
+			else
+				git reset HEAD ${fileName[$i]}
+				git checkout -- ${fileName[$i]}
+			fi
+		fi
+	done
+}
+
 function print_menu
 {
 	for (( i=0; i<${#fileName[@]}; i++ ));
@@ -216,7 +231,77 @@ function status
 
 function discard
 {
-	echo "coming soon!"
+	# startup
+	git fetch
+	git add .
+	sync=$(go_fetch)
+	branchName=$(get_branch)
+	get_files
+	selectionIndex=$length
+
+	while [ $breakOut = true ]; do
+		# draw ui
+		clear
+		draw_top_box
+		print_menu
+
+		if [ ${#fileName[@]} == 0 ]; then
+			exit
+		fi
+
+		if [ $length == $selectionIndex ]; then
+			printf "\033[7m[  DISCARD  ]\033[0m\n"
+		else
+			echo "[  DISCARD  ]"
+		fi
+
+		#handel input
+		while true; do
+			read -rsn1 esc
+			if [ "$esc" == $'\033' ]; then
+				read -sn1 bra
+				read -sn1 typ
+			elif [ "$esc" == "" ]; then
+				if [ $length == $selectionIndex ]; then
+					breakOut=false
+				else
+					toggle_file 
+				fi
+				break
+			fi
+			if [ "$esc$bra$typ" == $'\033'[A ]; then
+				selectionIndex=$(($selectionIndex - 1))
+				if [ "$selectionIndex" -lt "0" ]; then
+					selectionIndex=$length
+				fi
+				break
+			elif [ "$esc$bra$typ" == $'\033'[B ]; then
+				selectionIndex=$(($selectionIndex + 1))
+				if [ "$selectionIndex" -gt "$length" ]; then
+					selectionIndex=0
+				fi
+				break
+			fi
+		done
+	done
+
+	clear
+	draw_top_box
+	print_menu
+	read -p " Are you sure? (y/n)  " input
+
+	if [ "$input" = "y" ]; then
+		clear
+		echo "Discarding..."
+		discard_selected_files
+		status
+		exit
+	fi
+
+	clear
+	draw_top_box
+	print_menu
+	printf "\033[1;31mDiscard aborted\033[0m\n"
 }
 
 function ignore
