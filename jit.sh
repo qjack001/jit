@@ -50,7 +50,7 @@ function draw_top_box
 
 function get_files
 {
-	ADD_FILES=$(git diff --cached --name-status)
+	ADD_FILES=$(git diff --cached --name-status --no-renames) # -M100% -C100%  ## turns rename and copy detection back on, but to 100%
 	# NO_FILES=$(git diff --name-status)
 
 	temp=$(for word in $ADD_FILES; do echo $word; done)
@@ -64,6 +64,12 @@ function get_files
 			changeType+=("\033[1;32m+\033[0m")
 		elif [ "${FILES[$(($i - 1))]}" == "D" ]; then
 			changeType+=("\033[1;31m-\033[0m")
+		elif [ "${FILES[$(($i - 1))]}" == "C100" ]; then
+			changeType+=("\033[1;32mC\033[0m")
+			i=$(($i + 1))
+		elif [ "${FILES[$(($i - 1))]}" == "R100" ]; then
+			changeType+=("\033[1;33mR\033[0m")
+			i=$(($i + 1))
 		else
 			changeType+=("\033[1;33m?\033[0m")
 		fi 
@@ -110,6 +116,10 @@ function print_menu
 		fi
 	done
 
+	if [ ${#fileName[@]} == 0 ]; then
+		echo " No changed files"
+	fi
+
 	echo
 }
 
@@ -123,12 +133,15 @@ function commit
 	get_files
 	selectionIndex=$length
 
-
 	while [ $breakOut = true ]; do
 		# draw ui
 		clear
 		draw_top_box
 		print_menu
+
+		if [ ${#fileName[@]} == 0 ]; then
+			exit
+		fi
 
 		if [ $length == $selectionIndex ]; then
 			printf "\033[7m[  COMMIT  ]\033[0m\n"
