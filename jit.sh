@@ -106,12 +106,12 @@ function print_menu
 				printf "     "
 			fi
 			temp=$( echo ${changeType[$i]} | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g')
-			printf "$temp ${fileName[$i]}  \033[0m\n"
+			printf -- "$temp ${fileName[$i]}  \033[0m\n"
 		else
 			if [ ${selected[$i]} = true ]; then
-				echo " ✓   ${changeType[$i]} ${fileName[$i]} "
+				printf " ✓   ${changeType[$i]} ${fileName[$i]} \n"
 			else
-				echo "     ${changeType[$i]} ${fileName[$i]} "
+				printf "     ${changeType[$i]} ${fileName[$i]} \n"
 			fi
 		fi
 	done
