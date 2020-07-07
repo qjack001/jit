@@ -132,7 +132,9 @@ function print_menu
 	done
 
 	if [ ${#fileName[@]} == 0 ]; then
-		echo " No changed files"
+		tput setaf 7
+		printf " \033[3mNo changed files\033[0m\n"
+		tput sgr 0
 	fi
 
 	echo
