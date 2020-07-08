@@ -590,9 +590,8 @@ function update
 	curl https://raw.githubusercontent.com/qjack001/jit/master/jit.sh -o new-jit.sh
 	mv -f 'new-jit.sh' '/usr/local/bin/jit'
 	chmod +x '/usr/local/bin/jit'
-	clear
-	draw_top_box
 	echo "Updated!"
+	echo
 }
 
 function install
