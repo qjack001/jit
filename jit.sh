@@ -575,6 +575,8 @@ function show_help
 	echo "│                                                   │"
 	echo "│ jit push      ## push changes                     │"
 	echo "│ jit p         ## shorthand                        │"
+	echo "│                                                   │"
+	echo "│ jit update    ## update jit to the latest version │"
 	echo "└───────────────────────────────────────────────────┘"
 	tput sgr 0
 	echo
@@ -587,7 +589,7 @@ function update
 	clear
 	draw_top_box
 	echo "Updating..."
-	curl https://raw.githubusercontent.com/qjack001/jit/master/jit.sh -o new-jit.sh
+	curl -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/qjack001/jit/master/jit.sh?$(date +%s)" -o new-jit.sh
 	mv -f 'new-jit.sh' '/usr/local/bin/jit'
 	chmod +x '/usr/local/bin/jit'
 	echo "Updated!"
