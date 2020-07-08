@@ -552,6 +552,25 @@ function push_it
 	print_menu
 }
 
+function pull_it
+{
+	branchName=$(get_branch)
+	sync=$(go_fetch)
+	clear
+	draw_top_box
+	echo "Pulling..."
+	git pull
+	sync=$(go_fetch)
+	fileName=()
+	changeType=()
+	selected=()
+	get_files
+	selectionIndex=$length
+	clear
+	draw_top_box
+	print_menu
+}
+
 function show_help
 {
 	clear
@@ -617,6 +636,8 @@ elif [ "$1" = "ignore" ] || [ "$1" = "i" ] || [ "$1" = "--ignore" ] || [ "$1" = 
 	ignore
 elif [ "$1" = "install" ] || [ "$1" = "--install" ]; then
 	install
+elif [ "$1" = "pull" ] || [ "$1" = "--pull" ]; then
+	pull_it
 elif [ "$1" = "push" ] || [ "$1" = "p" ] || [ "$1" = "s" ] || [ "$1" = "s" ]; then
 	push_it
 elif [ "$1" = "update" ] || [ "$1" = "--update" ]; then
