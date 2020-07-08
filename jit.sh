@@ -110,6 +110,15 @@ function toggle_file
 	fi
 }
 
+function deselect_all
+{
+	for (( i=0; i<$length; i++ )); do
+		selectionIndex=$i
+		toggle_file 
+	done
+	selectionIndex=$length
+}
+
 function discard_selected_files
 {
 	for (( i=0; i<${#fileName[@]}; i++ ));
@@ -167,7 +176,7 @@ function print_menu
 			else
 				printf "     "
 			fi
-			temp=$( echo ${changeType[$i]} | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g')
+			temp=$( echo ${changeType[$i]} | perl -pe 's/\033\[[0-9;]*[mG]//g' )
 			printf -- "$temp ${fileName[$i]}  \033[0m\n"
 		else
 			if [ ${selected[$i]} = true ]; then
@@ -288,7 +297,7 @@ function discard
 	sync=$(go_fetch)
 	branchName=$(get_branch)
 	get_files
-	selectionIndex=$length
+	deselect_all
 
 	while [ $breakOut = true ]; do
 		# draw ui
@@ -364,7 +373,7 @@ function ignore
 	sync=$(go_fetch)
 	branchName=$(get_branch)
 	get_files
-	selectionIndex=$length
+	deselect_all
 
 	while [ $breakOut = true ]; do
 		# draw ui
@@ -544,7 +553,10 @@ function push_it
 
 function show_help
 {
-	echo
+	branchName=$(get_branch)
+	sync=$(go_fetch)
+	clear
+	draw_top_box
 	tput setaf 7
 	echo "┌───────────────────────────────────────────────────┐"
 	echo "│ Help:                                             │"
