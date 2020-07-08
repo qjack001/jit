@@ -5,7 +5,9 @@
 
 ## Installation
 
-Download `jit.sh` and place it in your root directory. Add `alias jit='sh jit.sh'` to your `~/.bashrc` file.
+To quickly try `jit` out, download `jit.sh` and place it in your root directory. Add `alias jit='sh ~./jit.sh'` to your `~/.bashrc` file. 
+
+For a more proper install, download `jit.sh` and run `mv ~/Downloads/jit.sh /usr/local/bin/jit`, followed by `chmod +x /usr/local/bin/jit`.
 
 ## Use
 
