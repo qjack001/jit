@@ -624,7 +624,7 @@ function install
 
 if [ "$#" -lt "1" ]; then
 	status
-elif [ "$1" = "status" ] || [ "$1" = "s" ] || [ "$1" = "s" ] || [ "$1" = "s" ]; then
+elif [ "$1" = "status" ] || [ "$1" = "s" ] || [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
 	status
 elif [ "$1" = "branch" ] || [ "$1" = "b" ] || [ "$1" = "--branch" ] || [ "$1" = "-b" ]; then
 	branch
