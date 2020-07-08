@@ -176,7 +176,8 @@ function print_menu
 			else
 				printf "     "
 			fi
-			temp=$( echo ${changeType[$i]} | sed $'s,\x1b\\[[0-9;]*[a-zA-Z],,g' )
+			temp=$( echo ${changeType[$i]} | sed -E 's/\\033\[.{1,8}m//g' )
+			# $( echo ${changeType[$i]} | tr -d '[:cntrl:]' )
 			printf -- "$temp ${fileName[$i]}  \033[0m\n"
 		else
 			if [ ${selected[$i]} = true ]; then
