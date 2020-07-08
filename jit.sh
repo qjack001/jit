@@ -23,7 +23,7 @@ function get_branch
 
 function go_fetch
 {
-	VALUES=$(git rev-list --left-right --count master...origin/master) ## fix: make work for current branch rather than just main branch
+	VALUES=$(git rev-list --left-right --count "$branchName...origin/$branchName") ## fix: make work for current branch rather than just main branch
 	val=($VALUES)
 	
 	if [[ "${val[0]}" == "0" ]]; then
@@ -202,8 +202,8 @@ function commit
 	# startup
 	git fetch
 	git add .
-	sync=$(go_fetch)
 	branchName=$(get_branch)
+	sync=$(go_fetch)
 	get_files
 	selectionIndex=$length
 
@@ -295,8 +295,8 @@ function discard
 	# startup
 	git fetch
 	git add .
-	sync=$(go_fetch)
 	branchName=$(get_branch)
+	sync=$(go_fetch)
 	get_files
 	deselect_all
 
@@ -371,8 +371,8 @@ function ignore
 	# startup
 	git fetch
 	git add .
-	sync=$(go_fetch)
 	branchName=$(get_branch)
+	sync=$(go_fetch)
 	get_files
 	deselect_all
 
@@ -554,10 +554,7 @@ function push_it
 
 function show_help
 {
-	branchName=$(get_branch)
-	sync=$(go_fetch)
 	clear
-	draw_top_box
 	tput setaf 7
 	echo "┌───────────────────────────────────────────────────┐"
 	echo "│ Help:                                             │"
@@ -608,21 +605,21 @@ function install
 
 if [ "$#" -lt "1" ]; then
 	status
-elif [ "$1" = "status" ] || [ "$1" = "s" ]; then
+elif [ "$1" = "status" ] || [ "$1" = "s" ] || [ "$1" = "s" ] || [ "$1" = "s" ]; then
 	status
-elif [ "$1" = "branch" ] || [ "$1" = "b" ]; then
+elif [ "$1" = "branch" ] || [ "$1" = "b" ] || [ "$1" = "--branch" ] || [ "$1" = "-b" ]; then
 	branch
-elif [ "$1" = "commit" ] || [ "$1" = "c" ]; then
+elif [ "$1" = "commit" ] || [ "$1" = "c" ] || [ "$1" = "--commit" ] || [ "$1" = "-c" ]; then
 	commit
-elif [ "$1" = "discard" ] || [ "$1" = "d" ]; then
+elif [ "$1" = "discard" ] || [ "$1" = "d" ] || [ "$1" = "--discard" ] || [ "$1" = "-d" ]; then
 	discard
-elif [ "$1" = "ignore" ] || [ "$1" = "i" ]; then
+elif [ "$1" = "ignore" ] || [ "$1" = "i" ] || [ "$1" = "--ignore" ] || [ "$1" = "-i" ]; then
 	ignore
-elif [ "$1" = "install" ]; then
+elif [ "$1" = "install" ] || [ "$1" = "--install" ]; then
 	install
-elif [ "$1" = "push" ] || [ "$1" = "p" ]; then
+elif [ "$1" = "push" ] || [ "$1" = "p" ] || [ "$1" = "s" ] || [ "$1" = "s" ]; then
 	push_it
-elif [ "$1" = "update" ]; then
+elif [ "$1" = "update" ] || [ "$1" = "--update" ]; then
 	update
 elif [ "$1" = "help" ] || [ "$1" = "h" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
 	show_help
