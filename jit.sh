@@ -638,7 +638,7 @@ elif [ "$1" = "install" ] || [ "$1" = "--install" ]; then
 	install
 elif [ "$1" = "pull" ] || [ "$1" = "--pull" ]; then
 	pull_it
-elif [ "$1" = "push" ] || [ "$1" = "p" ] || [ "$1" = "s" ] || [ "$1" = "s" ]; then
+elif [ "$1" = "push" ] || [ "$1" = "p" ] || [ "$1" = "--push" ] || [ "$1" = "-p" ]; then
 	push_it
 elif [ "$1" = "update" ] || [ "$1" = "--update" ]; then
 	update
