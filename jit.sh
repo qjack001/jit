@@ -176,7 +176,7 @@ function print_menu
 			else
 				printf "     "
 			fi
-			temp=$( echo ${changeType[$i]} | perl -pe 's/\033\[[0-9;]*[mG]//g' )
+			temp=$( echo ${changeType[$i]} | sed "s,$(printf '\033')\\[[0-9;]*[a-zA-Z],,g" )
 			printf -- "$temp ${fileName[$i]}  \033[0m\n"
 		else
 			if [ ${selected[$i]} = true ]; then
