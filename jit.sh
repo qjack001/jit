@@ -580,6 +580,27 @@ function show_help
 	echo
 }
 
+function update
+{
+	branchName=$(get_branch)
+	sync=$(go_fetch)
+	clear
+	draw_top_box
+	echo "Updating..."
+	curl https://raw.githubusercontent.com/qjack001/jit/master/jit.sh -o new-jit.sh
+	mv -f 'new-jit.sh' '/usr/local/bin/jit'
+	chmod +x '/usr/local/bin/jit'
+	clear
+	draw_top_box
+	echo "Updated!"
+}
+
+function install
+{
+	cp -f 'jit.sh' '/usr/local/bin/jit'
+	chmod +x '/usr/local/bin/jit'
+}
+
 
 # handle arguments
 
@@ -595,8 +616,12 @@ elif [ "$1" = "discard" ] || [ "$1" = "d" ]; then
 	discard
 elif [ "$1" = "ignore" ] || [ "$1" = "i" ]; then
 	ignore
+elif [ "$1" = "install" ]; then
+	install
 elif [ "$1" = "push" ] || [ "$1" = "p" ]; then
 	push_it
+elif [ "$1" = "update" ]; then
+	update
 elif [ "$1" = "help" ] || [ "$1" = "h" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
 	show_help
 else
