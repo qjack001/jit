@@ -125,6 +125,18 @@ function discard_selected_files
 	done
 }
 
+function ignore_selected_files
+{
+	touch ".gitignore"
+	for (( i=0; i<${#fileName[@]}; i++ ));
+	do
+		if [ ${selected[$i]} = true ]; then
+			echo ${fileName[$i]} >> ".gitignore"
+			git reset HEAD ${fileName[$i]}
+		fi
+	done
+}
+
 function switch_branch
 {
 	git checkout "${branches[$selectionIndex]}"
@@ -244,9 +256,11 @@ function commit
 		exit
 	fi
 
+	clear
+	draw_top_box
+	echo "Commiting..."
 	git commit -m "$input"
 	clear
-	echo "Commiting..."
 	status
 }
 
@@ -329,6 +343,7 @@ function discard
 
 	if [ "$input" = "y" ]; then
 		clear
+		draw_top_box
 		echo "Discarding..."
 		discard_selected_files
 		status
@@ -343,7 +358,78 @@ function discard
 
 function ignore
 {
-	echo "coming soon!"
+	# startup
+	git fetch
+	git add .
+	sync=$(go_fetch)
+	branchName=$(get_branch)
+	get_files
+	selectionIndex=$length
+
+	while [ $breakOut = true ]; do
+		# draw ui
+		clear
+		draw_top_box
+		print_menu
+
+		if [ ${#fileName[@]} == 0 ]; then
+			exit
+		fi
+
+		if [ $length == $selectionIndex ]; then
+			printf "\033[7m[  IGNORE  ]\033[0m\n"
+		else
+			echo "[  IGNORE  ]"
+		fi
+
+		#handel input
+		while true; do
+			read -rsn1 esc
+			if [ "$esc" == $'\033' ]; then
+				read -sn1 bra
+				read -sn1 typ
+			elif [ "$esc" == "" ]; then
+				if [ $length == $selectionIndex ]; then
+					breakOut=false
+				else
+					toggle_file 
+				fi
+				break
+			fi
+			if [ "$esc$bra$typ" == $'\033'[A ]; then
+				selectionIndex=$(($selectionIndex - 1))
+				if [ "$selectionIndex" -lt "0" ]; then
+					selectionIndex=$length
+				fi
+				break
+			elif [ "$esc$bra$typ" == $'\033'[B ]; then
+				selectionIndex=$(($selectionIndex + 1))
+				if [ "$selectionIndex" -gt "$length" ]; then
+					selectionIndex=0
+				fi
+				break
+			fi
+		done
+	done
+
+	clear
+	draw_top_box
+	print_menu
+	read -p " Are you sure? (y/n)  " input
+
+	if [ "$input" = "y" ]; then
+		clear
+		draw_top_box
+		echo "Ignoring..."
+		ignore_selected_files
+		status
+		exit
+	fi
+
+	clear
+	draw_top_box
+	print_menu
+	printf "\033[1;31mIgnore aborted\033[0m\n"
 }
 
 function branch
@@ -432,6 +518,7 @@ function branch
 
 	git checkout -b "$branchTitle" "$branchName"
 	clear
+	draw_top_box
 	echo "Creating new $input branch..."
 	status
 }
