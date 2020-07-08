@@ -13,6 +13,9 @@ branchName=""
 sync=""
 breakOut=true
 
+branches=()
+numBranches=0
+
 function get_branch
 {
 	echo $(git rev-parse --abbrev-ref HEAD)
@@ -46,6 +49,19 @@ function draw_top_box
 	echo "└─${branchName//?/─}─┴─${sync//?/─}─┘"
 	tput sgr 0
 	echo
+}
+
+function get_branches
+{
+	ALL_BRANCHES=$(git for-each-ref refs/heads/ --format='%(refname)') # --sort=-committerdate ## sort last committed to first
+	searchstring="refs/heads/"
+
+	for branch in $ALL_BRANCHES; do
+		temp=${branch#*$searchstring}
+		branches+=($temp)
+	done
+
+	numBranches=${#branches[@]}
 }
 
 function get_files
@@ -107,6 +123,25 @@ function discard_selected_files
 			fi
 		fi
 	done
+}
+
+function switch_branch
+{
+	git checkout "${branches[$selectionIndex]}"
+}
+
+function print_branch_menu
+{
+	for (( i=0; i<${#branches[@]}; i++ ));
+	do
+		if [ $i == $selectionIndex ]; then
+			printf "\033[7m  ${branches[$i]}  \033[0m\n"
+		else
+			printf "  ${branches[$i]}  \n"
+		fi
+	done
+
+	echo
 }
 
 function print_menu
@@ -313,14 +348,102 @@ function ignore
 
 function branch
 {
-	echo "coming soon!"
+	git fetch
+	branchName=$(get_branch)
+	sync=$(go_fetch)
+	get_branches
+
+	selectionIndex=$numBranches
+
+	for i in "${!branches[@]}"; do
+		if [[ "${branches[$i]}" = "${branchName}" ]]; then
+			selectionIndex=$i
+		fi
+	done
+
+	while [ $breakOut = true ]; do
+		# draw ui
+		clear
+		draw_top_box
+		print_branch_menu
+
+		if [ $numBranches == $selectionIndex ]; then
+			printf "\033[7m[  NEW BRANCH  ]\033[0m\n"
+		else
+			echo "[  NEW BRANCH  ]"
+		fi
+
+		#handel input
+		while true; do
+			read -rsn1 esc
+			if [ "$esc" == $'\033' ]; then
+				read -sn1 bra
+				read -sn1 typ
+			elif [ "$esc" == "" ]; then
+				if [ $numBranches == $selectionIndex ]; then
+					breakOut=false
+				else
+					switch_branch
+					clear
+					status
+					exit
+				fi
+				break
+			fi
+			if [ "$esc$bra$typ" == $'\033'[A ]; then
+				selectionIndex=$(($selectionIndex - 1))
+				if [ "$selectionIndex" -lt "0" ]; then
+					selectionIndex=$numBranches
+				fi
+				break
+			elif [ "$esc$bra$typ" == $'\033'[B ]; then
+				selectionIndex=$(($selectionIndex + 1))
+				if [ "$selectionIndex" -gt "$numBranches" ]; then
+					selectionIndex=0
+				fi
+				break
+			fi
+		done
+	done
+
+	clear
+	draw_top_box
+	print_branch_menu
+	read -p " >>  " input
+
+	if [ "$input" = "" ]; then
+		clear
+		draw_top_box
+		print_branch_menu
+		printf "\033[1;31mCreate branch aborted\033[0m\n"
+		exit
+	fi
+
+	# clean-up input for branch naming
+	cleaned=${input//[_+=.,~^:\"\'!]}
+	branchTitle=$( echo $cleaned | tr ' ' '-' )
+	while true; do
+		if [[ $branchTitle = -* ]]; then
+			branchTitle=${branchTitle#?};
+		else
+			break
+		fi
+	done
+
+	git checkout -b "$branchTitle" "$branchName"
+	clear
+	echo "Creating new $input branch..."
+	status
 }
 
 function push_it
 {
+	branchName=$(get_branch)
+	sync=$(go_fetch)
+	clear
+	draw_top_box
 	echo "Pushing..."
 	git push
-	branchName=$(get_branch)
 	sync=$(go_fetch)
 	fileName=()
 	changeType=()
