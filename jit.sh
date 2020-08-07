@@ -2,7 +2,7 @@
 
 # TODO:
 # add checks for failed commits, pushes, etc
-# make work on other platforms than macOS
+# check that branches & filepaths work properly
 
 fileName=()
 changeType=()
@@ -18,25 +18,33 @@ numBranches=0
 
 function get_branch
 {
+	if [[ $(git rev-parse --abbrev-ref HEAD) == "" ]]; then
+		echo "Not a repo"
+		exit
+	fi
 	echo $(git rev-parse --abbrev-ref HEAD)
 }
 
 function go_fetch
 {
-	VALUES=$(git rev-list --left-right --count "$branchName...origin/$branchName") ## fix: make work for current branch rather than just main branch
+	VALUES=$(git rev-list --left-right --count "$branchName...origin/$branchName")
 	val=($VALUES)
+
+	# ⇩ ⇧  ↑ ↓
 	
 	if [[ "${val[0]}" == "0" ]]; then
 		if [[ "${val[1]}" == "0" ]]; then
 			echo "Up-to-date"
 		else
-			echo "${val[1]} ⇩ "
+			echo "${val[1]} ↓"
 		fi
 	else
 		if [[ "${val[1]}" == "0" ]]; then
-			echo "${val[0]} ⇧ "
+			echo "${val[0]} ↑"
+		elif [[ "${val[1]}" == "" ]]; then
+			echo "publish ↑"
 		else
-			echo "${val[1]} ⇩   ${val[0]} ⇧ "
+			echo "${val[1]} ↓   ${val[0]} ↑"
 		fi
 	fi
 }
@@ -571,6 +579,25 @@ function pull_it
 	print_menu
 }
 
+function publish
+{
+	branchName=$(get_branch)
+	sync=$(go_fetch)
+	clear
+	draw_top_box
+	echo "Publishing..."
+	git push -u origin "$branchName"
+	sync=$(go_fetch)
+	fileName=()
+	changeType=()
+	selected=()
+	get_files
+	selectionIndex=$length
+	clear
+	draw_top_box
+	print_menu
+}
+
 function show_help
 {
 	clear
@@ -578,22 +605,27 @@ function show_help
 	echo "┌───────────────────────────────────────────────────┐"
 	echo "│ Help:                                             │"
 	echo "│                                                   │"
-	echo "│ jit branch    ## select branch                    │"
-	echo "│ jit b         ## shorthand                        │"
+	echo "│ jit branch      ## select branch                  │"
 	echo "│                                                   │"
-	echo "│ jit commit    ## opens commit interface           │"
-	echo "│ jit c         ## shorthand                        │"
+	echo "│ jit commit      ## opens commit interface         │"
 	echo "│                                                   │"
-	echo "│ jit discard   ## select files to discard changes  │"
-	echo "│ jit d         ## shorthand                        │"
+	echo "│ jit discard     ## select files & discard changes │"
 	echo "│                                                   │"
-	echo "│ jit ignore    ## select files to ignore           │"
-	echo "│ jit i         ## shorthand                        │"
+	echo "│ jit ignore      ## select files to ignore         │"
 	echo "│                                                   │"
-	echo "│ jit push      ## push changes                     │"
-	echo "│ jit p         ## shorthand                        │"
+	echo "│ jit publish     ## publish new branch             │"
 	echo "│                                                   │"
-	echo "│ jit update    ## update jit to the latest version │"
+	echo "│ jit push        ## push changes                   │"
+	echo "│ jit cancel-push ## cancel unpushed commit         │"
+	echo "│                                                   │"
+	echo "│ jit pull        ## pull changes                   │"
+	echo "│                                                   │"
+	echo "│ jit revert <#>  ## revert back '#' commits        │"
+	echo "│                 ## reverts last if no # is given  │"
+	echo "│                                                   │"
+	echo "│ jit short       ## show shortforms of commands    │"
+	echo "│                                                   │"
+	echo "│ jit update      ## update to the latest version   │"
 	echo "└───────────────────────────────────────────────────┘"
 	tput sgr 0
 	echo
@@ -640,6 +672,8 @@ elif [ "$1" = "pull" ] || [ "$1" = "--pull" ]; then
 	pull_it
 elif [ "$1" = "push" ] || [ "$1" = "p" ] || [ "$1" = "--push" ] || [ "$1" = "-p" ]; then
 	push_it
+elif [ "$1" = "publish" ] || [ "$1" = "pub" ] || [ "$1" = "--publish" ] || [ "$1" = "-pub" ]; then
+	publish
 elif [ "$1" = "update" ] || [ "$1" = "--update" ]; then
 	update
 elif [ "$1" = "help" ] || [ "$1" = "h" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
