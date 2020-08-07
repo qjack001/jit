@@ -598,6 +598,23 @@ function publish
 	print_menu
 }
 
+function revert
+{
+	if [ "$#" -lt "1" ]; then
+		git revert --no-commit HEAD~1..
+	else
+		git revert --no-commit "HEAD~$1.."
+	fi
+
+	commit
+}
+
+function cancel_push
+{
+	git reset HEAD^
+	status
+}
+
 function show_help
 {
 	clear
@@ -672,8 +689,12 @@ elif [ "$1" = "pull" ] || [ "$1" = "--pull" ]; then
 	pull_it
 elif [ "$1" = "push" ] || [ "$1" = "p" ] || [ "$1" = "--push" ] || [ "$1" = "-p" ]; then
 	push_it
+elif [ "$1" = "cancel-push" ] || [ "$1" = "--cancel-push" ] || [ "$1" = "cancel" ]; then
+	cancel_push
 elif [ "$1" = "publish" ] || [ "$1" = "pub" ] || [ "$1" = "--publish" ] || [ "$1" = "-pub" ]; then
 	publish
+elif [ "$1" = "revert" ] || [ "$1" = "r" ] || [ "$1" = "--revert" ] || [ "$1" = "-r" ]; then
+	revert $2
 elif [ "$1" = "update" ] || [ "$1" = "--update" ]; then
 	update
 elif [ "$1" = "help" ] || [ "$1" = "h" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
