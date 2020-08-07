@@ -4,6 +4,8 @@
 # add checks for failed commits, pushes, etc
 # check that branches & filepaths work properly
 
+version="1.2"
+
 fileName=()
 changeType=()
 selected=()
@@ -648,6 +650,33 @@ function show_help
 	echo
 }
 
+function show_short
+{
+	clear
+	tput setaf 7
+	echo "┌───────────────────────────────────────────────────┐"
+	echo "│ Shortforms:                                       │"
+	echo "│                                                   │"
+	echo "│ jit b    --  jit branch                           │"
+	echo "│                                                   │"
+	echo "│ jit c    --  jit commit                           │"
+	echo "│                                                   │"
+	echo "│ jit d    --  jit discard                          │"
+	echo "│                                                   │"
+	echo "│ jit i    --  jit ignore                           │"
+	echo "│                                                   │"
+	echo "│ jit pub  --  jit publish                          │"
+	echo "│                                                   │"
+	echo "│ jit p    --  jit push                             │"
+	echo "│                                                   │"
+	echo "│ jit u    --  jit pull                             │"
+	echo "│                                                   │"
+	echo "│ jit r    --  jit revert                           │"
+	echo "└───────────────────────────────────────────────────┘"
+	tput sgr 0
+	echo
+}
+
 function update
 {
 	branchName=$(get_branch)
@@ -660,12 +689,18 @@ function update
 	chmod +x '/usr/local/bin/jit'
 	echo "Updated!"
 	echo
+	print_version
 }
 
 function install
 {
 	cp -f 'jit.sh' '/usr/local/bin/jit'
 	chmod +x '/usr/local/bin/jit'
+}
+
+function print_version
+{
+	echo "jit v$version"
 }
 
 
@@ -675,6 +710,8 @@ if [ "$#" -lt "1" ]; then
 	status
 elif [ "$1" = "status" ] || [ "$1" = "s" ] || [ "$1" = "--status" ] || [ "$1" = "-s" ]; then
 	status
+elif [ "$1" = "short" ]; then
+	show_short
 elif [ "$1" = "branch" ] || [ "$1" = "b" ] || [ "$1" = "--branch" ] || [ "$1" = "-b" ]; then
 	branch
 elif [ "$1" = "commit" ] || [ "$1" = "c" ] || [ "$1" = "--commit" ] || [ "$1" = "-c" ]; then
@@ -685,7 +722,7 @@ elif [ "$1" = "ignore" ] || [ "$1" = "i" ] || [ "$1" = "--ignore" ] || [ "$1" = 
 	ignore
 elif [ "$1" = "install" ] || [ "$1" = "--install" ]; then
 	install
-elif [ "$1" = "pull" ] || [ "$1" = "--pull" ]; then
+elif [ "$1" = "pull" ] || [ "$1" = "--pull" ] || [ "$1" = "u" ] || [ "$1" = "-u" ]; then
 	pull_it
 elif [ "$1" = "push" ] || [ "$1" = "p" ] || [ "$1" = "--push" ] || [ "$1" = "-p" ]; then
 	push_it
@@ -695,6 +732,8 @@ elif [ "$1" = "publish" ] || [ "$1" = "pub" ] || [ "$1" = "--publish" ] || [ "$1
 	publish
 elif [ "$1" = "revert" ] || [ "$1" = "r" ] || [ "$1" = "--revert" ] || [ "$1" = "-r" ]; then
 	revert $2
+elif [ "$1" = "version" ] || [ "$1" = "--version" ]; then
+	print_version
 elif [ "$1" = "update" ] || [ "$1" = "--update" ]; then
 	update
 elif [ "$1" = "help" ] || [ "$1" = "h" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
