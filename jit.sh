@@ -684,7 +684,7 @@ function update
 	clear
 	draw_top_box
 	echo "Updating..."
-	curl -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/qjack001/jit/master/jit.sh?$(date +%s)" -o new-jit.sh
+	curl -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/qjack001/jit/main/jit.sh?$(date +%s)" -o new-jit.sh
 	mv -f 'new-jit.sh' '/usr/local/bin/jit'
 	chmod +x '/usr/local/bin/jit'
 	echo "Updated!"
