@@ -5,7 +5,7 @@
 
 ## Installation
 
-Download `jit.sh` (found [here](https://github.com/qjack001/jit/blob/master/jit.sh)) and run:
+Download `jit.sh` (found [here](https://github.com/qjack001/jit/blob/main/jit.sh)) and run:
 
 ```bash
 sh jit.sh install
